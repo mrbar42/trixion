@@ -9,8 +9,7 @@ Trixion is an ultra light modern web stack.
 
 clone the [trixion-starter](https://github.com/mrbar42/trixion-starter) project  
 and instead of any other dependency you may use (react, react-dom, redux, react-redux, react-router etc)  
-simply use trixion - its all in there for only.
-The whole thing weights ~15kb though.
+simply use trixion - its all in there. The whole thing weights ~15kb though.
 
 check out the [examples](https://github.com/mrbar42/trixion/tree/master/docs)
 
@@ -24,7 +23,7 @@ check out the [examples](https://github.com/mrbar42/trixion/tree/master/docs)
     - createClass
     - es6 classes
     - functional component
-    - object literal components (wtf?!)
+    - object literal components (yes yes... its true)
  - state store
     - simple reducers declaration
     - scoped reducers (on sections of the state)
@@ -99,14 +98,14 @@ Its recommended to read on each of the modules concepts and principles.
  
 ###### Resources
  - [docs by examples](https://github.com/mrbar42/trixion/tree/master/docs)
- - [POLYFILLS.md](https://github.com/mrbar42/trixion/blob/master/docs/POLYFILLS.md)
+ - [the included polyfills](https://github.com/mrbar42/trixion/blob/master/docs/POLYFILLS.md)
  - [handling your dependencies](https://github.com/mrbar42/trixion/blob/master/docs/DEPENDENCIES.md)
 
 ## Exports
 
 Here is a full list of the things that are exported from trixion (lots of them).
 
-###### store:
+###### Components:
 
   - `DOM`
   - `$`
@@ -149,5 +148,5 @@ Here is a full list of the things that are exported from trixion (lots of them).
 
 ## I want to help!
 
-Contribution would be much appreciated.
+Contribution would be much appreciated.  
 Either by creating pull requests of opening issues.
