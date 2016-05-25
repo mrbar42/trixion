@@ -3,7 +3,7 @@
 Trixion is an ultra light modern web stack.
  its goal is to produce a very light bundle yet to support latest conventions.
  
-**Trixion is still in beta stage - please use with care and submit any issue you encounter**
+\*\* **Trixion is still in beta stage - please use with care and submit any issue you encounter** \*\*
  
 ## TL;TR
 

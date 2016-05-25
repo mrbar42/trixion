@@ -25,5 +25,8 @@
     "no-alert": 2,
     "no-lone-blocks": 0,
     "jsx-quotes": 1
+  },
+  "parserOptions": {
+    "sourceType": "module"
   }
 }
