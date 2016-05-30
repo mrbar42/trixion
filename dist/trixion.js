@@ -281,6 +281,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Component = preact.Component;
 	
 	
+	var componentPrototype = Component.prototype;
+	
 	var wrapTag = function wrapTag(tag) {
 	  return function () {
 	    var args = Array.prototype.slice.call(arguments);
@@ -304,11 +306,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	
 	function createClass(obj) {
+	
+	  if (obj.__CREF__) return obj.__CREF__;
+	
 	  function F() {
-	    Component.call(this);
+	    Component.apply(this, arguments);
 	  }
 	
-	  var p = F.prototype = Object.create(Component.prototype);
+	  var p = F.prototype = Object.create(componentPrototype);
+	  F.prototype.getDOMNode = function () {
+	    return this.base;
+	  };
+	  F.prototype.isMounted = function () {
+	    return !!this.base;
+	  };
 	  for (var i in obj) {
 	    if ('getDefaultProps' == i) {
 	      //noinspection JSUnfilteredForInLoop
@@ -318,7 +329,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    p[i] = obj[i];
 	  }
 	
-	  return p.constructor = F;
+	  p.constructor = F;
+	
+	  Object.defineProperty(obj, '__CREF__', {
+	    value: F,
+	    writable: true
+	  });
+	
+	  return F;
 	}
 	
 	function unmountComponentAtNode(container) {
@@ -2343,14 +2361,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.isStringPath = !(route.path instanceof RegExp);
 	  this.path = this.isStringPath ? resolve(route.path || route.strictPath) : '';
 	  this.lineage = parent.path || '/';
-	  this.fullPath = resolve(this.lineage, this.path);
 	  this.strictPath = route.strictPath ? (parent.path == '/' ? '' : parent.path) + '/' + route.strictPath.replace(/^\//, '') : '';
 	  this.paramNames = [];
 	  this.preparePath();
-	
-	  // path /dashboard
-	  // lineage /settings
-	  // fullPath = /settings/dashboard
 	
 	  // state
 	  this.mounted = false;
@@ -2378,7 +2391,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	Route.prototype.destroy = function () {
 	  this.destroyed = true;
-	  this.children.forEach(function (child) {
+	  this.children && this.children.forEach(function (child) {
 	    return child.destroy();
 	  });
 	
