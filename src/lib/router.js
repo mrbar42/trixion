@@ -102,14 +102,9 @@ function Route(parent, route, refreshRouter) {
   this.isStringPath = !(route.path instanceof RegExp);
   this.path = this.isStringPath ? resolve(route.path || route.strictPath) : '';
   this.lineage = parent.path || '/';
-  this.fullPath = resolve(this.lineage, this.path);
   this.strictPath = route.strictPath ? `${parent.path == '/' ? '' : parent.path}/${route.strictPath.replace(/^\//, '')}` : '';
   this.paramNames = [];
   this.preparePath();
-
-  // path /dashboard
-  // lineage /settings
-  // fullPath = /settings/dashboard
 
   // state
   this.mounted = false;
@@ -138,7 +133,7 @@ function Route(parent, route, refreshRouter) {
 
 Route.prototype.destroy = function () {
   this.destroyed = true;
-  this.children.forEach(child => child.destroy());
+  this.children && this.children.forEach(child => child.destroy());
 
   if (this.mounted) this.unmount();
 };

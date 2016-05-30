@@ -3,6 +3,8 @@
 import * as preact from 'preact';
 let {h, Component} = preact;
 
+let componentPrototype = Component.prototype;
+
 let wrapTag = tag => {
   return function () {
     let args = Array.prototype.slice.call(arguments);
@@ -26,11 +28,20 @@ export function render(component, node, merge) {
 }
 
 export function createClass(obj) {
+
+  if (obj.__CREF__) return obj.__CREF__;
+
   function F() {
-    Component.call(this);
+    Component.apply(this, arguments);
   }
 
-  let p = F.prototype = Object.create(Component.prototype);
+  let p = F.prototype = Object.create(componentPrototype);
+  F.prototype.getDOMNode = function () {
+    return this.base;
+  };
+  F.prototype.isMounted = function () {
+    return !!this.base;
+  };
   for (let i in obj) {
     if ('getDefaultProps' == i) {
       //noinspection JSUnfilteredForInLoop
@@ -40,7 +51,14 @@ export function createClass(obj) {
     p[i] = obj[i];
   }
 
-  return p.constructor = F;
+  p.constructor = F;
+
+  Object.defineProperty(obj, '__CREF__', {
+    value: F,
+    writable: true
+  });
+
+  return F;
 }
 
 export function unmountComponentAtNode(container) {
