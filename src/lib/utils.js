@@ -7,7 +7,7 @@ export function cl() {
   return args.filter(x => !!x).join(' ');
 }
 
-export const DEBUG = process.env.NODE_ENV != 'production';
+export const DEBUG = typeof process !== 'undefined' && process.env && process.env.NODE_ENV != 'production';
 
 export function parseUri(uri) {
   let location = {};

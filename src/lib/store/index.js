@@ -7,7 +7,7 @@ const ROOT_PATH = "@@ROOT_PATH@@";
 const BOOT_ACTION = "@@BOOT_ACTION@@";
 const listeners = Object.create(null);
 //noinspection JSUnresolvedVariable
-const DEBUG = process.env.NODE_ENV != 'production';
+const DEBUG = typeof process !== 'undefined' && process.env && process.env.NODE_ENV != 'production';
 let state = {};
 let pendingUpdates = null;
 let booted;

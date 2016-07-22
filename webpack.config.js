@@ -5,10 +5,7 @@ let pack = require('./package.json');
 let path = require('path');
 
 let libraryName = pack.name;
-
-let plugins = [], outputFile;
-
-outputFile = libraryName + '.js';
+let outputFile = libraryName + '.js';
 
 let config = {
   entry: __dirname + '/src/lib',
@@ -36,7 +33,6 @@ let config = {
     root: path.resolve('./src'),
     extensions: ['', '.js']
   },
-  plugins,
   node: {
     process: false,
     global: false
