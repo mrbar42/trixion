@@ -59,7 +59,7 @@ meaning all of these are the same:
   - `h(Button)` - is similar, but doesn't support object literal components.
 
 I personally use `$` because it looks cleaner.
-if you use jQuery you might not like it... up to.
+if you use jQuery you might not like it... up to you.
 
 ```javascript
 import {DOM, Component, h, createClass, createElement, preact} from 'trixion';
@@ -84,7 +84,7 @@ const FunctionComponent = props => DOM.div(null, "My Component");
 const FunctionComponent2 = ({onClick, target}) => DOM.button({onClick}, text || "Submit");
 
 // Don't panic - but object literal is also included
-// must be rendered with 'E' though (look at the next example)
+// must be rendered with `E` or `$` though (look at the next example)
 const ComponentLiteral = {
   componentWillReceiveProps(nextProps) {
     // do stuff
@@ -145,7 +145,8 @@ navigate('/faq', {
 
 ## Routes
 
-**important** nested routes are passed through `props.children`. always render children on route components.
+**important** nested routes are passed through `props.children`.  
+always render `props.children` on route components.
 
 ###### Route options
  
@@ -299,6 +300,8 @@ let initialReducerState = {loading false};
 addReducer('session', (state, action) => {
   // state is actually state.session
   // all returned data will be merged respected to state.session...
+  
+  return initialReducerState;
 })
 
 // reducers tree

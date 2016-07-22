@@ -9,7 +9,7 @@ Trixion is an ultra light modern web stack.
 
 clone the [trixion-starter](https://github.com/mrbar42/trixion-starter) project  
 and instead of any other dependency you may use (react, react-dom, redux, react-redux, react-router etc)  
-simply use trixion - its all in there. The whole thing weights ~15kb though.
+simply use trixion - its all in there. The whole thing weights ~15kb though (batteries included).
 
 check out the [examples](https://github.com/mrbar42/trixion/tree/master/docs)
 
