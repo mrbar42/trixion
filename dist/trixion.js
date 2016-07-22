@@ -489,52 +489,39 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(setImmediate) {!function(global, factory) {
-	     true ? module.exports = factory() : 'function' == typeof define && define.amd ? define(factory) : global.preact = factory();
-	}(this, function() {
-	    'use strict';
+	     true ? factory(exports) : 'function' == typeof define && define.amd ? define([ 'exports' ], factory) : factory(global.preact = global.preact || {});
+	}(this, function(exports) {
 	    function VNode(nodeName, attributes, children) {
 	        this.nodeName = nodeName;
 	        this.attributes = attributes;
 	        this.children = children;
+	        this.key = attributes && attributes.key;
 	    }
 	    function extend(obj, props) {
-	        for (var i in props) if (hasOwnProperty.call(props, i)) obj[i] = props[i];
+	        if (props) for (var i in props) if (void 0 !== props[i]) obj[i] = props[i];
 	        return obj;
 	    }
 	    function clone(obj) {
-	        var out = {};
-	        for (var i in obj) out[i] = obj[i];
-	        return out;
-	    }
-	    function memoize(fn, mem) {
-	        mem = mem || {};
-	        return function(k) {
-	            return hasOwnProperty.call(mem, k) ? mem[k] : mem[k] = fn(k);
-	        };
+	        return extend({}, obj);
 	    }
 	    function delve(obj, key) {
 	        for (var p = key.split('.'), i = 0; i < p.length && obj; i++) obj = obj[p[i]];
 	        return obj;
 	    }
-	    function toArray(obj) {
-	        var arr = [], i = obj.length;
-	        for (;i--; ) arr[i] = obj[i];
-	        return arr;
+	    function toArray(obj, offset) {
+	        return [].slice.call(obj, offset);
 	    }
-	    function styleObjToCss(s) {
-	        var str = '';
-	        for (var prop in s) {
-	            var val = s[prop];
-	            if (!empty(val)) {
-	                if (str) str += ' ';
-	                str += jsToCss(prop);
-	                str += ': ';
-	                str += val;
-	                if ('number' == typeof val && !NON_DIMENSION_PROPS[prop]) str += 'px';
-	                str += ';';
-	            }
-	        }
-	        return str;
+	    function isFunction(obj) {
+	        return 'function' == typeof obj;
+	    }
+	    function isString(obj) {
+	        return 'string' == typeof obj;
+	    }
+	    function empty(x) {
+	        return void 0 === x || null === x;
+	    }
+	    function falsey(value) {
+	        return value === !1 || empty(value);
 	    }
 	    function hashToClassName(c) {
 	        var str = '';
@@ -544,57 +531,60 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return str;
 	    }
-	    function normalize(obj, prop, fn) {
-	        var v = obj[prop];
-	        if (v && !isString(v)) obj[prop] = fn(v);
-	    }
-	    function optionsHook(name, a, b) {
-	        return hook(options, name, a, b);
-	    }
-	    function hook(obj, name, a, b, c) {
-	        if (obj[name]) return obj[name](a, b, c); else ;
-	    }
-	    function deepHook(obj, type) {
-	        do hook(obj, type); while (obj = obj._component);
-	    }
-	    function h(nodeName, attributes) {
-	        var len = arguments.length, attributeChildren = attributes && attributes.children, children = void 0, arr = void 0, lastSimple = void 0;
-	        if (attributeChildren) {
-	            delete attributes.children;
-	            if (3 > len) return h(nodeName, attributes, attributeChildren);
-	        }
-	        for (var i = 2; len > i; i++) {
-	            var _p = arguments[i];
-	            if (!falsey(_p)) {
-	                if (!children) children = [];
-	                if (_p.join) arr = _p; else {
-	                    arr = SHARED_TEMP_ARRAY;
-	                    arr[0] = _p;
+	    function h(nodeName, attributes, firstChild) {
+	        var children, arr, lastSimple, len = arguments.length;
+	        if (len > 2) {
+	            var type = typeof firstChild;
+	            if (3 === len && 'object' !== type && 'function' !== type) {
+	                if (!falsey(firstChild)) children = [ String(firstChild) ];
+	            } else {
+	                children = [];
+	                for (var i = 2; i < len; i++) {
+	                    var _p = arguments[i];
+	                    if (!falsey(_p)) {
+	                        if (_p.join) arr = _p; else (arr = SHARED_TEMP_ARRAY)[0] = _p;
+	                        for (var j = 0; j < arr.length; j++) {
+	                            var child = arr[j], simple = !(falsey(child) || isFunction(child) || child instanceof VNode);
+	                            if (simple && !isString(child)) child = String(child);
+	                            if (simple && lastSimple) children[children.length - 1] += child; else if (!falsey(child)) {
+	                                children.push(child);
+	                                lastSimple = simple;
+	                            }
+	                        }
+	                    } else ;
 	                }
-	                for (var j = 0; j < arr.length; j++) {
-	                    var child = arr[j], simple = !(falsey(child) || child instanceof VNode);
-	                    if (simple) child = String(child);
-	                    if (simple && lastSimple) children[children.length - 1] += child; else if (!falsey(child)) children.push(child);
-	                    lastSimple = simple;
+	            }
+	        } else if (attributes && attributes.children) return h(nodeName, attributes, attributes.children);
+	        if (attributes) {
+	            if (attributes.children) delete attributes.children;
+	            if (!isFunction(nodeName)) {
+	                if ('className' in attributes) {
+	                    attributes.class = attributes.className;
+	                    delete attributes.className;
 	                }
-	            } else ;
+	                lastSimple = attributes.class;
+	                if (lastSimple && !isString(lastSimple)) attributes.class = hashToClassName(lastSimple);
+	            }
 	        }
-	        var p = new VNode(nodeName, attributes || void 0, children || void 0);
-	        optionsHook('vnode', p);
+	        var p = new VNode(nodeName, attributes || void 0, children);
+	        if (options.vnode) options.vnode(p);
 	        return p;
+	    }
+	    function cloneElement(vnode, props) {
+	        return h(vnode.nodeName, extend(clone(vnode.attributes), props), arguments.length > 2 ? toArray(arguments, 2) : vnode.children);
 	    }
 	    function createLinkedState(component, key, eventPath) {
 	        var path = key.split('.'), p0 = path[0], len = path.length;
 	        return function(e) {
 	            var _component$setState;
-	            var t = this, s = component.state, obj = s, v = void 0, i = void 0;
+	            var v, i, t = e && e.currentTarget || this, s = component.state, obj = s;
 	            if (isString(eventPath)) {
 	                v = delve(e, eventPath);
 	                if (empty(v) && (t = t._component)) v = delve(t, eventPath);
 	            } else v = (t.nodeName + t.type).match(/^input(check|rad)/i) ? t.checked : t.value;
 	            if (isFunction(v)) v = v.call(t);
 	            if (len > 1) {
-	                for (i = 0; len - 1 > i; i++) obj = obj[path[i]] || (obj[path[i]] = {});
+	                for (i = 0; i < len - 1; i++) obj = obj[path[i]] || (obj[path[i]] = {});
 	                obj[path[i]] = v;
 	                v = s[p0];
 	            }
@@ -606,179 +596,175 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    function rerender() {
 	        if (items.length) {
-	            var currentItems = items, p = void 0;
+	            var p, currentItems = items;
 	            items = itemsOffline;
 	            itemsOffline = currentItems;
-	            for (;p = currentItems.pop(); ) if (p._dirty) renderComponent(p);
+	            while (p = currentItems.pop()) if (p._dirty) renderComponent(p);
 	        }
 	    }
-	    function isFunctionalComponent(_ref) {
-	        var nodeName = _ref.nodeName;
-	        return isFunction(nodeName) && !(nodeName.prototype && nodeName.prototype.render);
+	    function isFunctionalComponent(vnode) {
+	        var nodeName = vnode && vnode.nodeName;
+	        return nodeName && isFunction(nodeName) && !(nodeName.prototype && nodeName.prototype.render);
 	    }
 	    function buildFunctionalComponent(vnode, context) {
-	        return vnode.nodeName(getNodeProps(vnode), context || EMPTY) || EMPTY_BASE;
+	        return vnode.nodeName(getNodeProps(vnode), context || EMPTY) || '';
 	    }
-	    function ensureNodeData(node) {
-	        return node[ATTR_KEY] || (node[ATTR_KEY] = {});
+	    function ensureNodeData(node, data) {
+	        return node[ATTR_KEY] || (node[ATTR_KEY] = data || {});
 	    }
 	    function getNodeType(node) {
-	        return node.nodeType;
-	    }
-	    function appendChildren(parent, children) {
-	        var len = children.length, many = len > 2, into = many ? document.createDocumentFragment() : parent;
-	        for (var i = 0; len > i; i++) into.appendChild(children[i]);
-	        if (many) parent.appendChild(into);
+	        if (node instanceof Text) return 3;
+	        if (node instanceof Element) return 1; else return 0;
 	    }
 	    function removeNode(node) {
 	        var p = node.parentNode;
 	        if (p) p.removeChild(node);
 	    }
-	    function getAccessor(node, name, value, cache) {
-	        if ('type' !== name && 'style' !== name && name in node) return node[name];
-	        var attrs = node[ATTR_KEY];
-	        if (cache !== !1 && attrs && hasOwnProperty.call(attrs, name)) return attrs[name];
-	        if ('class' === name) return node.className;
-	        if ('style' === name) return node.style.cssText; else return value;
-	    }
-	    function setAccessor(node, name, value) {
-	        if ('class' === name) node.className = value || ''; else if ('style' === name) node.style.cssText = value || ''; else if ('dangerouslySetInnerHTML' === name) {
-	            if (value && value.__html) node.innerHTML = value.__html;
-	        } else if ('key' === name || name in node && 'type' !== name) {
-	            node[name] = value;
-	            if (falsey(value)) node.removeAttribute(name);
-	        } else setComplexAccessor(node, name, value);
+	    function setAccessor(node, name, value, old, isSvg) {
 	        ensureNodeData(node)[name] = value;
-	    }
-	    function setComplexAccessor(node, name, value) {
-	        if ('on' !== name.substring(0, 2)) {
-	            var type = typeof value;
-	            if (falsey(value)) node.removeAttribute(name); else if ('function' !== type && 'object' !== type) node.setAttribute(name, value);
+	        if ('key' !== name && 'children' !== name) if ('class' === name && !isSvg) node.className = value || ''; else if ('style' === name) {
+	            if (!value || isString(value) || isString(old)) node.style.cssText = value || '';
+	            if (value && 'object' == typeof value) {
+	                for (var i in old) if (!(i in value)) node.style[i] = '';
+	                for (var i in value) node.style[i] = 'number' == typeof value[i] && !NON_DIMENSION_PROPS[i] ? value[i] + 'px' : value[i];
+	            }
+	        } else if ('dangerouslySetInnerHTML' === name) {
+	            if (value) node.innerHTML = value.__html;
+	        } else if ('type' !== name && !isSvg && name in node) {
+	            setProperty(node, name, empty(value) ? '' : value);
+	            if (falsey(value)) node.removeAttribute(name);
+	        } else if ('o' === name[0] && 'n' === name[1]) {
+	            var l = node._listeners || (node._listeners = {});
+	            name = toLowerCase(name.substring(2));
+	            if (value) {
+	                if (!l[name]) node.addEventListener(name, eventProxy);
+	            } else if (l[name]) node.removeEventListener(name, eventProxy);
+	            l[name] = value;
 	        } else {
-	            var _type = normalizeEventName(name), l = node._listeners || (node._listeners = {}), fn = !l[_type] ? 'add' : !value ? 'remove' : null;
-	            if (fn) node[fn + 'EventListener'](_type, eventProxy);
-	            l[_type] = value;
+	            var ns = isSvg && name.match(/^xlink\:?(.+)/);
+	            if (falsey(value)) if (ns) node.removeAttributeNS('http://www.w3.org/1999/xlink', toLowerCase(ns[1])); else node.removeAttribute(name); else if ('object' != typeof value && !isFunction(value)) if (ns) node.setAttributeNS('http://www.w3.org/1999/xlink', toLowerCase(ns[1]), value); else node.setAttribute(name, value);
 	        }
+	    }
+	    function setProperty(node, name, value) {
+	        try {
+	            node[name] = value;
+	        } catch (e) {}
 	    }
 	    function eventProxy(e) {
-	        var fn = this._listeners[normalizeEventName(e.type)];
-	        if (fn) return fn.call(this, optionsHook('event', e) || e); else ;
-	    }
-	    function getNodeAttributes(node) {
-	        return node[ATTR_KEY] || getRawNodeAttributes(node) || EMPTY;
+	        return this._listeners[e.type](options.event && options.event(e) || e);
 	    }
 	    function getRawNodeAttributes(node) {
-	        var list = node.attributes;
-	        if (!list || !list.getNamedItem) return list; else return getAttributesAsObject(list);
-	    }
-	    function getAttributesAsObject(list) {
-	        var attrs = void 0;
-	        for (var i = list.length; i--; ) {
-	            var item = list[i];
-	            if (!attrs) attrs = {};
-	            attrs[item.name] = item.value;
-	        }
+	        var attrs = {};
+	        for (var i = node.attributes.length; i--; ) attrs[node.attributes[i].name] = node.attributes[i].value;
 	        return attrs;
 	    }
 	    function isSameNodeType(node, vnode) {
-	        if (isFunctionalComponent(vnode)) return !0;
-	        var nodeName = vnode.nodeName;
-	        if (isFunction(nodeName)) return node._componentConstructor === nodeName;
-	        if (3 === getNodeType(node)) return isString(vnode); else return toLowerCase(node.nodeName) === nodeName;
+	        if (isString(vnode)) return 3 === getNodeType(node);
+	        if (isString(vnode.nodeName)) return isNamedNode(node, vnode.nodeName);
+	        if (isFunction(vnode.nodeName)) return node._componentConstructor === vnode.nodeName || isFunctionalComponent(vnode); else ;
+	    }
+	    function isNamedNode(node, nodeName) {
+	        return (node.normalizedNodeName || toLowerCase(node.nodeName)) === toLowerCase(nodeName);
 	    }
 	    function getNodeProps(vnode) {
-	        var props = clone(vnode.attributes), c = vnode.children;
-	        if (c) props.children = c;
-	        var defaultProps = vnode.nodeName.defaultProps;
-	        if (defaultProps) for (var i in defaultProps) if (hasOwnProperty.call(defaultProps, i) && !(i in props)) props[i] = defaultProps[i];
+	        var defaultProps = vnode.nodeName.defaultProps, props = clone(defaultProps || vnode.attributes);
+	        if (defaultProps) extend(props, vnode.attributes);
+	        if (vnode.children) props.children = vnode.children;
 	        return props;
 	    }
 	    function collectNode(node) {
 	        cleanNode(node);
-	        var name = normalizeName(node.nodeName), list = nodes[name];
+	        var name = toLowerCase(node.nodeName), list = nodes[name];
 	        if (list) list.push(node); else nodes[name] = [ node ];
 	    }
-	    function createNode(nodeName) {
-	        var name = normalizeName(nodeName), list = nodes[name], node = list && list.pop() || document.createElement(nodeName);
+	    function createNode(nodeName, isSvg) {
+	        var name = toLowerCase(nodeName), node = nodes[name] && nodes[name].pop() || (isSvg ? document.createElementNS('http://www.w3.org/2000/svg', nodeName) : document.createElement(nodeName));
 	        ensureNodeData(node);
+	        node.normalizedNodeName = name;
 	        return node;
 	    }
 	    function cleanNode(node) {
 	        removeNode(node);
 	        if (3 !== getNodeType(node)) {
-	            if (!node[ATTR_KEY]) node[ATTR_KEY] = getRawNodeAttributes(node);
+	            ensureNodeData(node, getRawNodeAttributes(node));
 	            node._component = node._componentConstructor = null;
 	        }
 	    }
-	    function diff(dom, vnode, context) {
+	    function flushMounts() {
+	        var c;
+	        while (c = mounts.pop()) if (c.componentDidMount) c.componentDidMount();
+	    }
+	    function diff(dom, vnode, context, mountAll, unmountChildrenOnly, parent) {
+	        diffLevel++;
+	        var ret = idiff(dom, vnode, context, mountAll, unmountChildrenOnly);
+	        if (parent && ret.parentNode !== parent) parent.appendChild(ret);
+	        if (!--diffLevel) flushMounts();
+	        return ret;
+	    }
+	    function idiff(dom, vnode, context, mountAll, unmountChildrenOnly) {
 	        var originalAttributes = vnode.attributes;
-	        for (;isFunctionalComponent(vnode); ) vnode = buildFunctionalComponent(vnode, context);
-	        if (isFunction(vnode.nodeName)) return buildComponentFromVNode(dom, vnode, context);
+	        while (isFunctionalComponent(vnode)) vnode = buildFunctionalComponent(vnode, context);
 	        if (isString(vnode)) {
 	            if (dom) {
-	                var type = getNodeType(dom);
-	                if (3 === type) {
-	                    dom[TEXT_CONTENT] = vnode;
+	                if (3 === getNodeType(dom)) {
+	                    if (dom.nodeValue !== vnode) dom.nodeValue = vnode;
 	                    return dom;
-	                } else if (1 === type) collectNode(dom);
+	                }
+	                if (!unmountChildrenOnly) collectNode(dom);
 	            }
 	            return document.createTextNode(vnode);
 	        }
-	        var out = dom, nodeName = vnode.nodeName || UNDEFINED_ELEMENT;
-	        if (!dom) out = createNode(nodeName); else if (toLowerCase(dom.nodeName) !== nodeName) {
-	            out = createNode(nodeName);
-	            appendChildren(out, toArray(dom.childNodes));
-	            recollectNodeTree(dom);
+	        var svgMode, out = dom, nodeName = vnode.nodeName;
+	        if (isFunction(nodeName)) return buildComponentFromVNode(dom, vnode, context, mountAll);
+	        if (!isString(nodeName)) nodeName = String(nodeName);
+	        svgMode = 'svg' === toLowerCase(nodeName);
+	        if (svgMode) isSvgMode = !0;
+	        if (!dom) out = createNode(nodeName, isSvgMode); else if (!isNamedNode(dom, nodeName)) {
+	            out = createNode(nodeName, isSvgMode);
+	            while (dom.firstChild) out.appendChild(dom.firstChild);
+	            if (!unmountChildrenOnly) recollectNodeTree(dom);
 	        }
-	        innerDiffNode(out, vnode, context);
-	        diffAttributes(out, vnode);
+	        if (vnode.children && 1 === vnode.children.length && 'string' == typeof vnode.children[0] && 1 === out.childNodes.length && out.firstChild instanceof Text) out.firstChild.nodeValue = vnode.children[0]; else if (vnode.children || out.firstChild) innerDiffNode(out, vnode.children, context, mountAll);
+	        diffAttributes(out, vnode.attributes);
 	        if (originalAttributes && originalAttributes.ref) (out[ATTR_KEY].ref = originalAttributes.ref)(out);
+	        if (svgMode) isSvgMode = !1;
 	        return out;
 	    }
-	    function innerDiffNode(dom, vnode, context) {
-	        var children = void 0, keyed = void 0, keyedLen = 0, len = dom.childNodes.length, childrenLen = 0;
-	        if (len) {
-	            children = [];
-	            for (var i = 0; len > i; i++) {
-	                var child = dom.childNodes[i], key = child._component ? child._component.__key : getAccessor(child, 'key');
-	                if (!empty(key)) {
-	                    if (!keyed) keyed = {};
-	                    keyed[key] = child;
-	                    keyedLen++;
-	                } else children[childrenLen++] = child;
-	            }
+	    function innerDiffNode(dom, vchildren, context, mountAll) {
+	        var j, c, vchild, child, originalChildren = dom.childNodes, children = [], keyed = {}, keyedLen = 0, min = 0, len = originalChildren.length, childrenLen = 0, vlen = vchildren && vchildren.length;
+	        if (len) for (var i = 0; i < len; i++) {
+	            var _child = originalChildren[i], key = vlen ? (c = _child._component) ? c.__key : (c = _child[ATTR_KEY]) ? c.key : null : null;
+	            if (key || 0 === key) {
+	                keyedLen++;
+	                keyed[key] = _child;
+	            } else children[childrenLen++] = _child;
 	        }
-	        var vchildren = vnode.children, vlen = vchildren && vchildren.length, min = 0;
-	        if (vlen) for (var i = 0; vlen > i; i++) {
-	            var vchild = vchildren[i], child = void 0;
-	            if (keyedLen) {
-	                var attrs = vchild.attributes, key = attrs && attrs.key;
-	                if (!empty(key) && hasOwnProperty.call(keyed, key)) {
+	        if (vlen) for (var i = 0; i < vlen; i++) {
+	            vchild = vchildren[i];
+	            child = null;
+	            if (keyedLen && vchild.attributes) {
+	                var key = vchild.key;
+	                if (!empty(key) && key in keyed) {
 	                    child = keyed[key];
-	                    keyed[key] = null;
+	                    keyed[key] = void 0;
 	                    keyedLen--;
 	                }
 	            }
-	            if (!child && childrenLen > min) for (var j = min; childrenLen > j; j++) {
-	                var c = children[j];
+	            if (!child && min < childrenLen) for (j = min; j < childrenLen; j++) {
+	                c = children[j];
 	                if (c && isSameNodeType(c, vchild)) {
 	                    child = c;
-	                    children[j] = null;
+	                    children[j] = void 0;
 	                    if (j === childrenLen - 1) childrenLen--;
 	                    if (j === min) min++;
 	                    break;
 	                }
 	            }
-	            child = diff(child, vchild, context);
-	            if (dom.childNodes[i] !== child) {
-	                var c = child.parentNode !== dom && child._component, next = dom.childNodes[i + 1];
-	                if (c) deepHook(c, 'componentWillMount');
-	                if (next) dom.insertBefore(child, next); else dom.appendChild(child);
-	                if (c) deepHook(c, 'componentDidMount');
-	            }
+	            child = idiff(child, vchild, context, mountAll);
+	            if (child !== originalChildren[i]) dom.insertBefore(child, originalChildren[i] || null);
 	        }
-	        if (keyedLen) for (var i in keyed) if (hasOwnProperty.call(keyed, i) && keyed[i]) children[min = childrenLen++] = keyed[i];
-	        if (childrenLen > min) removeOrphanedChildren(children);
+	        if (keyedLen) for (var i in keyed) if (keyed[i]) children[min = childrenLen++] = keyed[i];
+	        if (min < childrenLen) removeOrphanedChildren(children);
 	    }
 	    function removeOrphanedChildren(children, unmountOnly) {
 	        for (var i = children.length; i--; ) {
@@ -787,10 +773,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    }
 	    function recollectNodeTree(node, unmountOnly) {
-	        var attrs = node[ATTR_KEY];
-	        if (attrs) hook(attrs, 'ref', null);
 	        var component = node._component;
 	        if (component) unmountComponent(component, !unmountOnly); else {
+	            if (node[ATTR_KEY] && node[ATTR_KEY].ref) node[ATTR_KEY].ref(null);
 	            if (!unmountOnly) {
 	                if (1 !== getNodeType(node)) {
 	                    removeNode(node);
@@ -798,34 +783,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	                collectNode(node);
 	            }
-	            var c = node.childNodes;
-	            if (c && c.length) removeOrphanedChildren(c, unmountOnly);
+	            if (node.childNodes.length) removeOrphanedChildren(node.childNodes, unmountOnly);
 	        }
 	    }
-	    function diffAttributes(dom, vnode) {
-	        var old = getNodeAttributes(dom) || EMPTY, attrs = vnode.attributes || EMPTY, name = void 0, value = void 0;
-	        for (name in old) if (empty(attrs[name])) setAccessor(dom, name, null);
-	        if (attrs !== EMPTY) for (name in attrs) if (hasOwnProperty.call(attrs, name)) {
-	            value = attrs[name];
-	            if (!empty(value) && value != getAccessor(dom, name)) setAccessor(dom, name, value);
-	        }
+	    function diffAttributes(dom, attrs) {
+	        var old = dom[ATTR_KEY] || getRawNodeAttributes(dom);
+	        for (var _name in old) if (!(attrs && _name in attrs)) setAccessor(dom, _name, null, old[_name], isSvgMode);
+	        if (attrs) for (var _name2 in attrs) if (!(_name2 in old) || attrs[_name2] != ('value' === _name2 || 'selected' === _name2 || 'checked' === _name2 ? dom[_name2] : old[_name2])) setAccessor(dom, _name2, attrs[_name2], old[_name2], isSvgMode);
 	    }
 	    function collectComponent(component) {
 	        var name = component.constructor.name, list = components[name];
 	        if (list) list.push(component); else components[name] = [ component ];
 	    }
 	    function createComponent(Ctor, props, context) {
-	        var list = components[Ctor.name], len = list && list.length, c = void 0;
-	        for (var i = 0; len > i; i++) {
-	            c = list[i];
-	            if (c.constructor === Ctor) {
-	                list.splice(i, 1);
-	                var inst = new Ctor(props, context);
-	                inst.nextBase = c.base;
-	                return inst;
-	            }
+	        var inst = new Ctor(props, context), list = components[Ctor.name];
+	        if (list) for (var i = list.length; i--; ) if (list[i].constructor === Ctor) {
+	            inst.nextBase = list[i].nextBase;
+	            list.splice(i, 1);
+	            break;
 	        }
-	        return new Ctor(props, context);
+	        return inst;
 	    }
 	    function triggerComponentRender(component) {
 	        if (!component._dirty) {
@@ -833,32 +810,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	            enqueueRender(component);
 	        }
 	    }
-	    function setComponentProps(component, props, opts, context) {
-	        var d = component._disableRendering;
-	        component.__ref = props.ref;
-	        component.__key = props.key;
-	        delete props.ref;
-	        delete props.key;
-	        component._disableRendering = !0;
-	        if (context) {
-	            if (!component.prevContext) component.prevContext = component.context;
-	            component.context = context;
-	        }
-	        if (component.base) hook(component, 'componentWillReceiveProps', props, component.context);
-	        if (!component.prevProps) component.prevProps = component.props;
-	        component.props = props;
-	        component._disableRendering = d;
-	        if (!opts || opts.render !== !1) if (opts && opts.renderSync || options.syncComponentUpdates !== !1) renderComponent(component); else triggerComponentRender(component);
-	        hook(component, '__ref', component);
-	    }
-	    function renderComponent(component, opts) {
+	    function setComponentProps(component, props, opts, context, mountAll) {
+	        var b = component.base;
 	        if (!component._disableRendering) {
-	            var skip = void 0, rendered = void 0, props = component.props, state = component.state, context = component.context, previousProps = component.prevProps || props, previousState = component.prevState || state, previousContext = component.prevContext || context, isUpdate = component.base, initialBase = isUpdate || component.nextBase;
+	            component._disableRendering = !0;
+	            if (component.__ref = props.ref) delete props.ref;
+	            if (component.__key = props.key) delete props.key;
+	            if (empty(b) || mountAll) {
+	                if (component.componentWillMount) component.componentWillMount();
+	            } else if (component.componentWillReceiveProps) component.componentWillReceiveProps(props, context);
+	            if (context && context !== component.context) {
+	                if (!component.prevContext) component.prevContext = component.context;
+	                component.context = context;
+	            }
+	            if (!component.prevProps) component.prevProps = component.props;
+	            component.props = props;
+	            component._disableRendering = !1;
+	            if (0 !== opts) if (1 === opts || options.syncComponentUpdates !== !1 || !b) renderComponent(component, 1, mountAll); else triggerComponentRender(component);
+	            if (component.__ref) component.__ref(component);
+	        }
+	    }
+	    function renderComponent(component, opts, mountAll) {
+	        if (!component._disableRendering) {
+	            var skip, rendered, props = component.props, state = component.state, context = component.context, previousProps = component.prevProps || props, previousState = component.prevState || state, previousContext = component.prevContext || context, isUpdate = component.base, initialBase = isUpdate || component.nextBase, initialComponent = initialBase && initialBase._component, initialChildComponent = component._component;
 	            if (isUpdate) {
 	                component.props = previousProps;
 	                component.state = previousState;
 	                component.context = previousContext;
-	                if (hook(component, 'shouldComponentUpdate', props, state, context) === !1) skip = !0; else hook(component, 'componentWillUpdate', props, state, context);
+	                if (2 !== opts && component.shouldComponentUpdate && component.shouldComponentUpdate(props, state, context) === !1) skip = !0; else if (component.componentWillUpdate) component.componentWillUpdate(props, state, context);
 	                component.props = props;
 	                component.state = state;
 	                component.context = context;
@@ -866,63 +845,71 @@ return /******/ (function(modules) { // webpackBootstrap
 	            component.prevProps = component.prevState = component.prevContext = component.nextBase = null;
 	            component._dirty = !1;
 	            if (!skip) {
-	                rendered = hook(component, 'render', props, state, context);
-	                var childComponent = rendered && rendered.nodeName, childContext = component.getChildContext ? component.getChildContext() : context, toUnmount = void 0, base = void 0;
+	                if (component.render) rendered = component.render(props, state, context);
+	                if (component.getChildContext) context = extend(clone(context), component.getChildContext());
+	                while (isFunctionalComponent(rendered)) rendered = buildFunctionalComponent(rendered, context);
+	                var toUnmount, base, childComponent = rendered && rendered.nodeName;
 	                if (isFunction(childComponent) && childComponent.prototype.render) {
-	                    var inst = component._component;
-	                    if (inst && inst.constructor !== childComponent) {
+	                    var inst = initialChildComponent, childProps = getNodeProps(rendered);
+	                    if (inst && inst.constructor === childComponent) setComponentProps(inst, childProps, 1, context); else {
 	                        toUnmount = inst;
-	                        inst = null;
-	                    }
-	                    var childProps = getNodeProps(rendered);
-	                    if (inst) setComponentProps(inst, childProps, SYNC_RENDER, childContext); else {
-	                        inst = createComponent(childComponent, childProps, childContext);
+	                        inst = createComponent(childComponent, childProps, context);
 	                        inst._parentComponent = component;
 	                        component._component = inst;
-	                        if (isUpdate) deepHook(inst, 'componentWillMount');
-	                        setComponentProps(inst, childProps, NO_RENDER, childContext);
-	                        renderComponent(inst, DOM_RENDER);
-	                        if (isUpdate) deepHook(inst, 'componentDidMount');
+	                        setComponentProps(inst, childProps, 0, context);
+	                        renderComponent(inst, 1);
 	                    }
 	                    base = inst.base;
 	                } else {
 	                    var cbase = initialBase;
-	                    toUnmount = component._component;
+	                    toUnmount = initialChildComponent;
 	                    if (toUnmount) cbase = component._component = null;
-	                    if (initialBase || opts && opts.build) base = diff(cbase, rendered || EMPTY_BASE, childContext);
+	                    if (initialBase || 1 === opts) {
+	                        if (cbase) cbase._component = null;
+	                        base = diff(cbase, rendered || '', context, mountAll || !isUpdate, !0);
+	                    }
 	                }
 	                if (initialBase && base !== initialBase) {
 	                    var p = initialBase.parentNode;
 	                    if (p && base !== p) p.replaceChild(base, initialBase);
+	                    if (!toUnmount && initialComponent === component && !initialChildComponent) {
+	                        initialBase._component = null;
+	                        recollectNodeTree(initialBase);
+	                    }
 	                }
 	                if (toUnmount) unmountComponent(toUnmount, !0);
 	                component.base = base;
 	                if (base) {
 	                    var componentRef = component, t = component;
-	                    for (;t = t._parentComponent; ) componentRef = t;
+	                    while (t = t._parentComponent) componentRef = t;
 	                    base._component = componentRef;
 	                    base._componentConstructor = componentRef.constructor;
 	                }
-	                if (isUpdate) hook(component, 'componentDidUpdate', previousProps, previousState, previousContext);
 	            }
-	            var cb = component._renderCallbacks, fn = void 0;
-	            if (cb) for (;fn = cb.pop(); ) fn.call(component);
+	            if (!isUpdate || mountAll) {
+	                mounts.splice(0, 0, component);
+	                if (!diffLevel) flushMounts();
+	            } else if (!skip && component.componentDidUpdate) component.componentDidUpdate(previousProps, previousState, previousContext);
+	            var fn, cb = component._renderCallbacks;
+	            if (cb) while (fn = cb.pop()) fn.call(component);
 	            return rendered;
 	        }
 	    }
-	    function buildComponentFromVNode(dom, vnode, context) {
-	        var c = dom && dom._component, oldDom = dom;
-	        var isOwner = c && dom._componentConstructor === vnode.nodeName;
-	        for (;c && !isOwner && (c = c._parentComponent); ) isOwner = c.constructor === vnode.nodeName;
-	        if (isOwner) {
-	            setComponentProps(c, getNodeProps(vnode), SYNC_RENDER, context);
+	    function buildComponentFromVNode(dom, vnode, context, mountAll) {
+	        var c = dom && dom._component, oldDom = dom, isDirectOwner = c && dom._componentConstructor === vnode.nodeName, isOwner = isDirectOwner, props = getNodeProps(vnode);
+	        while (c && !isOwner && (c = c._parentComponent)) isOwner = c.constructor === vnode.nodeName;
+	        if (isOwner && (!mountAll || c._component)) {
+	            setComponentProps(c, props, 3, context, mountAll);
 	            dom = c.base;
 	        } else {
-	            if (c) {
+	            if (c && !isDirectOwner) {
 	                unmountComponent(c, !0);
 	                dom = oldDom = null;
 	            }
-	            dom = createComponentFromVNode(vnode, dom, context);
+	            c = createComponent(vnode.nodeName, props, context);
+	            if (dom && !c.nextBase) c.nextBase = dom;
+	            setComponentProps(c, props, 1, context, mountAll);
+	            dom = c.base;
 	            if (oldDom && dom !== oldDom) {
 	                oldDom._component = null;
 	                recollectNodeTree(oldDom);
@@ -930,62 +917,51 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return dom;
 	    }
-	    function createComponentFromVNode(vnode, dom, context) {
-	        var props = getNodeProps(vnode);
-	        var component = createComponent(vnode.nodeName, props, context);
-	        if (dom && !component.base) component.base = dom;
-	        setComponentProps(component, props, NO_RENDER, context);
-	        renderComponent(component, DOM_RENDER);
-	        return component.base;
-	    }
 	    function unmountComponent(component, remove) {
-	        hook(component, '__ref', null);
-	        hook(component, 'componentWillUnmount');
+	        component._disableRendering = !0;
+	        if (component.componentWillUnmount) component.componentWillUnmount();
 	        var inner = component._component;
-	        if (inner) {
-	            unmountComponent(inner, remove);
-	            remove = !1;
+	        if (inner) unmountComponent(inner, remove); else {
+	            var base = component.base;
+	            if (base) {
+	                component.nextBase = base;
+	                component.base = null;
+	                if (base[ATTR_KEY] && base[ATTR_KEY].ref) base[ATTR_KEY].ref(null);
+	                if (remove) {
+	                    removeNode(base);
+	                    collectComponent(component);
+	                }
+	                removeOrphanedChildren(base.childNodes, !remove);
+	            }
 	        }
-	        var base = component.base;
-	        if (base) {
-	            if (remove !== !1) removeNode(base);
-	            removeOrphanedChildren(base.childNodes, !0);
-	        }
-	        if (remove) {
-	            component._parentComponent = null;
-	            collectComponent(component);
-	        }
-	        hook(component, 'componentDidUnmount');
+	        if (component.__ref) component.__ref(null);
+	        if (component.componentDidUnmount) component.componentDidUnmount();
 	    }
 	    function Component(props, context) {
-	        this._dirty = this._disableRendering = !1;
+	        this._dirty = !0;
+	        this._disableRendering = !1;
 	        this.prevState = this.prevProps = this.prevContext = this.base = this.nextBase = this._parentComponent = this._component = this.__ref = this.__key = this._linkedStates = this._renderCallbacks = null;
 	        this.context = context || {};
 	        this.props = props;
-	        this.state = hook(this, 'getInitialState') || {};
+	        this.state = this.getInitialState && this.getInitialState() || {};
 	    }
 	    function render(vnode, parent, merge) {
-	        var existing = merge && merge._component && merge._componentConstructor === vnode.nodeName, built = diff(merge, vnode), c = !existing && built._component;
-	        if (c) deepHook(c, 'componentWillMount');
-	        if (built.parentNode !== parent) parent.appendChild(built);
-	        if (c) deepHook(c, 'componentDidMount');
-	        return built;
+	        return diff(merge, vnode, {}, !1, !1, parent);
 	    }
-	    var NO_RENDER = {
-	        render: !1
+	    var lcCache = {};
+	    var toLowerCase = function(s) {
+	        return lcCache[s] || (lcCache[s] = s.toLowerCase());
 	    };
-	    var SYNC_RENDER = {
-	        renderSync: !0
+	    var resolved = 'undefined' != typeof Promise && Promise.resolve();
+	    var setImmediate = resolved ? function(f) {
+	        resolved.then(f);
+	    } : setTimeout;
+	    var options = {
+	        vnode: empty
 	    };
-	    var DOM_RENDER = {
-	        build: !0
-	    };
+	    var SHARED_TEMP_ARRAY = [];
 	    var EMPTY = {};
-	    var EMPTY_BASE = '';
-	    var HAS_DOM = 'undefined' != typeof document;
-	    var TEXT_CONTENT = !HAS_DOM || 'textContent' in document ? 'textContent' : 'nodeValue';
-	    var ATTR_KEY = 'undefined' != typeof Symbol ? Symbol['for']('preactattr') : '__preactattr_';
-	    var UNDEFINED_ELEMENT = 'undefined';
+	    var ATTR_KEY = 'undefined' != typeof Symbol ? Symbol.for('preactattr') : '__preactattr_';
 	    var NON_DIMENSION_PROPS = {
 	        boxFlex: 1,
 	        boxFlexGroup: 1,
@@ -1007,61 +983,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	        zIndex: 1,
 	        zoom: 1
 	    };
-	    var isFunction = function(obj) {
-	        return 'function' == typeof obj;
-	    };
-	    var isString = function(obj) {
-	        return 'string' == typeof obj;
-	    };
-	    var hasOwnProperty = {}.hasOwnProperty;
-	    var empty = function(x) {
-	        return null == x;
-	    };
-	    var falsey = function(value) {
-	        return value === !1 || null == value;
-	    };
-	    var jsToCss = memoize(function(s) {
-	        return s.replace(/([A-Z])/g, '-$1').toLowerCase();
-	    });
-	    var toLowerCase = memoize(function(s) {
-	        return s.toLowerCase();
-	    });
-	    var ch = void 0;
-	    try {
-	        ch = new MessageChannel();
-	    } catch (e) {}
-	    var setImmediate = ch ? function(f) {
-	        ch.port1.onmessage = f;
-	        ch.port2.postMessage('');
-	    } : setTimeout;
-	    var options = {
-	        vnode: function(n) {
-	            var attrs = n.attributes;
-	            if (attrs && !isFunction(n.nodeName)) {
-	                var p = attrs.className;
-	                if (p) {
-	                    attrs['class'] = p;
-	                    delete attrs.className;
-	                }
-	                if (attrs['class']) normalize(attrs, 'class', hashToClassName);
-	                if (attrs.style) normalize(attrs, 'style', styleObjToCss);
-	            }
-	        }
-	    };
-	    var SHARED_TEMP_ARRAY = [];
 	    var items = [];
 	    var itemsOffline = [];
-	    var normalizeEventName = memoize(function(t) {
-	        return t.replace(/^on/i, '').toLowerCase();
-	    });
 	    var nodes = {};
-	    var normalizeName = memoize(function(name) {
-	        return name.toUpperCase();
-	    });
+	    var mounts = [];
+	    var diffLevel = 0;
+	    var isSvgMode = !1;
 	    var components = {};
 	    extend(Component.prototype, {
 	        linkState: function(key, eventPath) {
-	            var c = this._linkedStates || (this._linkedStates = {}), cacheKey = key + '|' + (eventPath || '');
+	            var c = this._linkedStates || (this._linkedStates = {}), cacheKey = key + '|' + eventPath;
 	            return c[cacheKey] || (c[cacheKey] = createLinkedState(this, key, eventPath));
 	        },
 	        setState: function(state, callback) {
@@ -1072,21 +1003,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	            triggerComponentRender(this);
 	        },
 	        forceUpdate: function() {
-	            renderComponent(this);
+	            renderComponent(this, 2);
 	        },
 	        render: function() {
 	            return null;
 	        }
 	    });
-	    var preact = {
-	        h: h,
-	        Component: Component,
-	        render: render,
-	        rerender: rerender,
-	        options: options,
-	        hooks: options
-	    };
-	    return preact;
+	    exports.h = h;
+	    exports.cloneElement = cloneElement;
+	    exports.Component = Component;
+	    exports.render = render;
+	    exports.rerender = rerender;
+	    exports.options = options;
 	});
 	//# sourceMappingURL=preact.js.map
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).setImmediate))
@@ -1180,6 +1108,31 @@ return /******/ (function(modules) { // webpackBootstrap
 	// shim for using process in browser
 	
 	var process = module.exports = {};
+	
+	// cached from whatever global is present so that test runners that stub it
+	// don't break things.  But we need to wrap it in a try catch in case it is
+	// wrapped in strict mode code which doesn't define any globals.  It's inside a
+	// function because try/catches deoptimize in certain engines.
+	
+	var cachedSetTimeout;
+	var cachedClearTimeout;
+	
+	(function () {
+	  try {
+	    cachedSetTimeout = setTimeout;
+	  } catch (e) {
+	    cachedSetTimeout = function () {
+	      throw new Error('setTimeout is not defined');
+	    }
+	  }
+	  try {
+	    cachedClearTimeout = clearTimeout;
+	  } catch (e) {
+	    cachedClearTimeout = function () {
+	      throw new Error('clearTimeout is not defined');
+	    }
+	  }
+	} ())
 	var queue = [];
 	var draining = false;
 	var currentQueue;
@@ -1204,7 +1157,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (draining) {
 	        return;
 	    }
-	    var timeout = setTimeout(cleanUpNextTick);
+	    var timeout = cachedSetTimeout(cleanUpNextTick);
 	    draining = true;
 	
 	    var len = queue.length;
@@ -1221,7 +1174,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    currentQueue = null;
 	    draining = false;
-	    clearTimeout(timeout);
+	    cachedClearTimeout(timeout);
 	}
 	
 	process.nextTick = function (fun) {
@@ -1233,7 +1186,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    queue.push(new Item(fun, args));
 	    if (queue.length === 1 && !draining) {
-	        setTimeout(drainQueue, 0);
+	        cachedSetTimeout(drainQueue, 0);
 	    }
 	};
 	
@@ -1371,7 +1324,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }).join(' ');
 	}
 	
-	var DEBUG = exports.DEBUG = process.env.NODE_ENV != 'production';
+	var DEBUG = exports.DEBUG = typeof process !== 'undefined' && process.env && process.env.NODE_ENV != 'production';
 	
 	function parseUri(uri) {
 	  var location = {};
@@ -1533,7 +1486,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var BOOT_ACTION = "@@BOOT_ACTION@@";
 	var listeners = Object.create(null);
 	//noinspection JSUnresolvedVariable
-	var DEBUG = process.env.NODE_ENV != 'production';
+	var DEBUG = typeof process !== 'undefined' && process.env && process.env.NODE_ENV != 'production';
 	var state = {};
 	var pendingUpdates = null;
 	var booted = void 0;
