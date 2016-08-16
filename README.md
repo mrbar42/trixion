@@ -5,6 +5,8 @@ Trixion is an ultra light modern web stack.
  
 \*\* **Trixion is still in beta stage - please use with care and submit any issue you encounter** \*\*
  
+ [Read about Trixion in Medium](https://medium.com/@mrbar42/how-i-reduced-the-size-of-my-webpack-bundle-by-1000-f4d74894c2e5)
+ 
 ## TL;TR
 
 clone the [trixion-starter](https://github.com/mrbar42/trixion-starter) project  
