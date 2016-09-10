@@ -21,13 +21,13 @@ this is infact a one-file bundle of the lib and can usually be found under one o
  previewing a file through github will show the file size.
  Don't forget to take minification into account.
  
-### Method 2 - npmcdn.com
+### Method 2 - unpkg.com
 
- [npmcdn](https://npmcdn.com/) its a great tool and can easily be used
+ [unpkg](https://unpkg.com/) its a great tool and can easily be used
  to retrieve some information about npm packages.
  
- to check the size of a package go to npmcdn.com/package_name
- for example: `https://npmcdn.com/trixion`
+ to check the size of a package go to unpkg.com/package_name
+ for example: `https://unpkg.com/trixion`
  
  this will automatically redirect you browser to the latest version of the package
  and will point the file under `main` in `package.json`
