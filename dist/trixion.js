@@ -1410,9 +1410,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (path === void 0) {
 	    return DEBUG ? deepFreeze(state) : state;
 	  } else if (typeof path == 'string' && action === void 0) {
-	    var _getDeepPath3 = getDeepPath(path, state),
-	        _getDeepPath4 = _slicedToArray(_getDeepPath3, 1),
-	        statePath = _getDeepPath4[0];
+	    var _getDeepPath$ = _slicedToArray(getDeepPath(path, state)[0], 1),
+	        statePath = _getDeepPath$[0];
 	
 	    return DEBUG ? deepFreeze(statePath) : statePath;
 	  }
@@ -1438,15 +1437,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	      target = state;
 	      booted = true;
 	    } else {
-	      var _getDeepPath5 = getDeepPath(path, state);
+	      var _getDeepPath3 = getDeepPath(path, state);
 	      // get deep path from dot notation - creates children implicitly
 	
 	
-	      var _getDeepPath6 = _slicedToArray(_getDeepPath5, 3);
+	      var _getDeepPath4 = _slicedToArray(_getDeepPath3, 3);
 	
-	      target = _getDeepPath6[0];
-	      parent = _getDeepPath6[1];
-	      prop = _getDeepPath6[2];
+	      target = _getDeepPath4[0];
+	      parent = _getDeepPath4[1];
+	      prop = _getDeepPath4[2];
 	    }
 	
 	    var _ref = assignRecursive(target, action) || changed,
