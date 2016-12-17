@@ -1,6 +1,6 @@
 "use strict";
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 /* eslint-disable */
 // repo: https://github.com/inexorabletash/polyfill/blob/master/es5.js
@@ -191,6 +191,7 @@ if (!Function.prototype.bind) {
 //
 // ES5 15.4.3 Properties of the Array Constructor
 //
+
 
 // ES5 15.4.3.2 Array.isArray ( arg )
 // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/isArray
@@ -513,6 +514,7 @@ if (!Array.prototype.reduceRight) {
 // ES5 15.5.4 Properties of the String Prototype Object
 //
 
+
 // ES5 15.5.4.20 String.prototype.trim()
 if (!String.prototype.trim) {
   String.prototype.trim = function () {
@@ -523,6 +525,7 @@ if (!String.prototype.trim) {
 //----------------------------------------------------------------------
 // ES5 15.9 Date Objects
 //----------------------------------------------------------------------
+
 
 //
 // ES 15.9.4 Properties of the Date Constructor

@@ -20,11 +20,9 @@ function polyfill(list, cb) {
   var completed = 0;
   var missing = [];
   for (var i = 0; i < list.length; i++) {
-    var _list$i = _slicedToArray(list[i], 2);
-
-    var isMissing = _list$i[0];
-    var polyfillEnv = _list$i[1];
-
+    var _list$i = _slicedToArray(list[i], 2),
+        isMissing = _list$i[0],
+        polyfillEnv = _list$i[1];
 
     if (isMissing()) {
       pending++;

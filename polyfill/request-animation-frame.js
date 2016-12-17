@@ -25,7 +25,6 @@ if (!window.requestAnimationFrame || !window.cancelAnimationFrame) {
      * @Copyright 2015 - Julien Etienne.
      * @License: MIT.
      */
-
     var hasIOS6RequestAnimationFrameBug = function hasIOS6RequestAnimationFrameBug() {
       var webkitRAF = window.webkitRequestAnimationFrame,
           rAF = window.requestAnimationFrame,

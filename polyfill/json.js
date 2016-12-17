@@ -1,6 +1,6 @@
 "use strict";
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 /* eslint-disable */
 //  json2.js
@@ -229,8 +229,8 @@ if ((typeof JSON === "undefined" ? "undefined" : _typeof(JSON)) !== "object") {
 
         // If the space parameter is a string, it will be used as the indent string.
       } else if (typeof space === "string") {
-          indent = space;
-        }
+        indent = space;
+      }
 
       // If there is a replacer, it must be a function or an array.
       // Otherwise, throw an error.
