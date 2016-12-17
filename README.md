@@ -7,7 +7,7 @@ Trixion is an ultra light modern web stack.
  
  [Read about Trixion in Medium](https://medium.com/@mrbar42/how-i-reduced-the-size-of-my-webpack-bundle-by-1000-f4d74894c2e5)
  
-## TL;TR
+## TL;DR
 
 clone the [trixion-starter](https://github.com/mrbar42/trixion-starter) project  
 and instead of any other dependency you may use (react, react-dom, redux, react-redux, react-router etc)  
