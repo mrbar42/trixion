@@ -69,12 +69,22 @@ export function findDOMNode(component) {
   return component.base || null;
 }
 
+let PropTypes = {};
+
+let predicates = 'array bool func number object string any arrayOf ' +
+  'element instanceOf node objectOf oneOf oneOf oneOfType shape';
+
+predicates
+  .split(' ')
+  .forEach(x => PropTypes[x] = ()=> ({}));
+
 export {
   Component,
   h,
   $ as createElement,
   $ as E,
-  preact
+  preact,
+  PropTypes
 };
 
 const supportedTags = 'a abbr address area article aside audio b base bdi bdo big blockquote ' +

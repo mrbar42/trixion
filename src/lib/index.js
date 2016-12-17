@@ -37,7 +37,8 @@ export {
   findDOMNode,
   unmountComponentAtNode,
   h,
-  preact
+  preact,
+  PropTypes
 } from './preact';
 // reselect
 export {createSelector} from './reselect';
@@ -63,3 +64,5 @@ export {
   // global namespace
   app
 };
+
+export default module.exports;
