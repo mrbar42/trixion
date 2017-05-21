@@ -8,7 +8,14 @@ but nested dependencies can cause an hindering extra weight to your bundle.
 
 ## Discovering packages size
 
-### Method 1 - github.com
+### Method 1 - use tools
+
+There is a great tool called `Cost of my module`
+
+Used like so:  
+https://cost-of-modules.herokuapp.com/?p=trixion@1.0.0
+
+### Method 2 - github.com
 
 when you examine a package its always a good thing to visit the github
 repository page.
@@ -21,7 +28,7 @@ this is infact a one-file bundle of the lib and can usually be found under one o
  previewing a file through github will show the file size.
  Don't forget to take minification into account.
  
-### Method 2 - unpkg.com
+### Method 3 - unpkg.com
 
  [unpkg](https://unpkg.com/) its a great tool and can easily be used
  to retrieve some information about npm packages.
@@ -38,7 +45,7 @@ this is infact a one-file bundle of the lib and can usually be found under one o
   that the package doesn't have a one-file bundle
    
 
-### Method 3 - babel
+### Method 4 - babel
 
 abel supports command line bundling which can provide fast results
 
@@ -55,7 +62,7 @@ gzip cli (Supported in certain hosts)
     cat bundle.min.js | gzip > bundle.min.js.gz
     
 
-### Method 4 - analyze your bundle
+### Method 5 - analyze your bundle
 
 generate a production bundle profile JSON using this command
 
